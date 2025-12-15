@@ -309,7 +309,7 @@ func (cfg *frozenConfig) Marshal(v interface{}) (_ []byte, err error) {
 	defer func() {
 		// See Stream.enforceMaxBytes() for an explanation of this.
 		if r := recover(); r != nil {
-			if limitError, ok := r.(exceededMaxMarshalledBytesError); ok {
+			if limitError, ok := r.(ExceededMaxMarshalledBytesError); ok {
 				err = limitError
 				return
 			}

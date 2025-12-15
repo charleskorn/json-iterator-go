@@ -125,16 +125,16 @@ func (stream *Stream) enforceMaxBytes() {
 		// Furthermore, nothing checks if the stream has failed until the object has been completely written
 		// so if we don't panic here, we'd continue writing the rest of the object, negating the purpose of
 		// this limit.
-		panic(exceededMaxMarshalledBytesError{stream.cfg.maxMarshalledBytes})
+		panic(ExceededMaxMarshalledBytesError{stream.cfg.maxMarshalledBytes})
 	}
 }
 
-type exceededMaxMarshalledBytesError struct {
-	maxBytes uint64
+type ExceededMaxMarshalledBytesError struct {
+	MaxMarshalledBytes uint64
 }
 
-func (err exceededMaxMarshalledBytesError) Error() string {
-	return fmt.Sprintf("marshalling produced a result over the configured limit of %d bytes", err.maxBytes)
+func (err ExceededMaxMarshalledBytesError) Error() string {
+	return fmt.Sprintf("marshalling produced a result over the configured limit of %d bytes", err.MaxMarshalledBytes)
 }
 
 // Flush writes any buffered data to the underlying io.Writer.
