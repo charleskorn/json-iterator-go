@@ -302,9 +302,22 @@ func (cfg *frozenConfig) MarshalToString(v interface{}) (string, error) {
 	return string(stream.Buffer()), nil
 }
 
-func (cfg *frozenConfig) Marshal(v interface{}) ([]byte, error) {
+func (cfg *frozenConfig) Marshal(v interface{}) (_ []byte, err error) {
 	stream := cfg.BorrowStream(nil)
 	defer cfg.ReturnStream(stream)
+
+	defer func() {
+		// See Stream.enforceMaxBytes() for an explanation of this.
+		if r := recover(); r != nil {
+			if limitError, ok := r.(exceededMaxMarshalledBytesError); ok {
+				err = limitError
+				return
+			}
+
+			panic(r)
+		}
+	}()
+
 	stream.WriteVal(v)
 	if stream.Error != nil {
 		return nil, stream.Error

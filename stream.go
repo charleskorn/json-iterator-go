@@ -114,15 +114,18 @@ func (stream *Stream) writeFiveBytes(c1 byte, c2 byte, c3 byte, c4 byte, c5 byte
 }
 
 func (stream *Stream) enforceMaxBytes() {
-	if !stream.enforceMarshalledBytesLimit || stream.Error != nil {
+	if !stream.enforceMarshalledBytesLimit {
 		return
 	}
 
 	if uint64(len(stream.buf)) > stream.marshalledBytesLimitRemaining {
 		// Why do we do this rather than return an error?
 		// Most of the writing methods on Stream do not return an error, and introducing this would be a
-		// breaking change.
-		stream.Error = exceededMaxMarshalledBytesError{stream.cfg.maxMarshalledBytes}
+		// breaking change for custom encoders.
+		// Furthermore, nothing checks if the stream has failed until the object has been completely written
+		// so if we don't panic here, we'd continue writing the rest of the object, negating the purpose of
+		// this limit.
+		panic(exceededMaxMarshalledBytesError{stream.cfg.maxMarshalledBytes})
 	}
 }
 
